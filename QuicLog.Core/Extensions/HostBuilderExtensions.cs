@@ -12,6 +12,6 @@ namespace QuicLog.Core.Extensions
             hostBuilder.UseSerilog();
             return hostBuilder;
         }
-        public static Void Test() {}
+        public static void Test() {}
     }
 }
