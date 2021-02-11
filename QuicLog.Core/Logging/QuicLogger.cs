@@ -4,6 +4,8 @@ using Microsoft.Extensions.Configuration;
 using Serilog;
 using Serilog.Formatting.Json;
 
+
+
 namespace QuicLog.Core.Logging
 {
     public static class QuicLogger
@@ -41,10 +43,8 @@ namespace QuicLog.Core.Logging
         {
             var loggerConfig = new LoggerConfiguration()
                 .ReadFrom.Configuration(_configuration);
-            if (_options.IsApplicationInsights)
-                return CreateApplicationInsightsLogger(loggerConfig);
-            if (_options.IsRollingFile)
-                return CreateRollingFileLogger(loggerConfig);
+            if (_options.IsEventCollector)
+                return CreateEventCollectorLogger(loggerConfig);
             if (_options.IsConsole)
                 return CreateConsoleLogger(loggerConfig);
             return CreateConsoleLogger(loggerConfig);
@@ -52,17 +52,13 @@ namespace QuicLog.Core.Logging
 
         private static ILogger CreateConsoleLogger(LoggerConfiguration loggerConfig)
         {
-            return loggerConfig.WriteTo.Console().CreateLogger();
-        }
+            return loggerConfig.WriteTo.Console(outputTemplate:
+                    "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}").CreateLogger();
+        }   
 
-        private static ILogger CreateRollingFileLogger(LoggerConfiguration loggerConfig)
+        private static ILogger CreateEventCollectorLogger(LoggerConfiguration loggerConfig)
         {
-            return loggerConfig.WriteTo.RollingFile( new JsonFormatter(), _options.RollingFilePath).CreateLogger();
-        }
-
-        private static ILogger CreateApplicationInsightsLogger(LoggerConfiguration loggerConfig)
-        {
-            return loggerConfig.WriteTo.ApplicationInsights(_options.InstrumentationKey,null).CreateLogger();
+            return loggerConfig.WriteTo.EventCollector("http://localhost:8088/services/collector", "e8f47278-7ff0-4a33-a370-672afa4879b8").CreateLogger();
         }
     }
 }

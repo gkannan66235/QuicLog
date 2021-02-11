@@ -5,18 +5,16 @@ namespace QuicLog.Core.Logging
 {
     public class QuicLogConfigOptions
     {
-        private QuicLogConfigOptions( bool isConsole,  bool isRollingFile,  bool isApplicationInsights)
+        private QuicLogConfigOptions( bool isConsole,  bool isEventCollector)
         {
             IsConsole = isConsole;
-            IsRollingFile = isRollingFile;
-            IsApplicationInsights = isApplicationInsights;
+            IsEventCollector = isEventCollector;
         }
 
-        public bool IsRollingFile { get; private set; }
-        public bool IsApplicationInsights { get; private set; }
+        public bool IsEventCollector { get; private set; }
         public bool IsConsole { get; private set; }
-        public string InstrumentationKey { get; private set; }
-        public string RollingFilePath { get; private set; }
+        public string SplunkEndpoint { get; private set; }
+        public string SplunkToken { get; private set; }
 
         public static QuicLogConfigOptions Create(IConfiguration configuration, string configSection)
         {
@@ -25,29 +23,29 @@ namespace QuicLog.Core.Logging
             if (quicLogSection == null)
                 throw new InvalidOperationException("Section QuicLog is missing.");
             if (bool.TryParse(quicLogSection["IsConsole"], out var isConsole) &&
-                bool.TryParse(quicLogSection["IsRollingFile"], out var isRollingFile) &&
-                bool.TryParse(quicLogSection["IsApplicationInsights"], out var isApplicationInsights))
+                bool.TryParse(quicLogSection["IsEventCollector"], out var isEventCollector))
             {
-                options = new QuicLogConfigOptions(isConsole, isRollingFile, isApplicationInsights);
+                options = new QuicLogConfigOptions(isConsole, isEventCollector);
             }
             else
                 throw new InvalidOperationException("Unable to parse boolean values in QuicLog section");
 
-            if (isApplicationInsights)
+            if (isEventCollector)
             {
-                var instrumentationKey = configuration.GetValue<string>("ApplicationInsights:InstrumentationKey");
-                if (string.IsNullOrWhiteSpace(instrumentationKey))
+                var SplunkToken = configuration.GetValue<string>("EventCollector:SplunkToken");
+                var SplunkEndpoint = configuration.GetValue<string>("EventCollector:SplunkEndpoint");
+                if (string.IsNullOrWhiteSpace(SplunkToken))
                 {
                     throw new InvalidOperationException(
-                        "Instrumentation key cannot be null. It should be set under ApplicationInsights:InstrumentationKey");
+                        "Splunk Token cannot be null. It should be set under EventCollector:SplunkToken");
                 }
-
-                options.InstrumentationKey = instrumentationKey;
-            }
-
-            if (isRollingFile)
-            {
-                options.RollingFilePath = quicLogSection["RollingFilePath"];
+                if (string.IsNullOrWhiteSpace(SplunkEndpoint))
+                {
+                    throw new InvalidOperationException(
+                        "Splunk Endpoint cannot be null. It should be set under EventCollector:SplunkEndpoint");
+                }
+                options.SplunkToken = SplunkToken;
+                options.SplunkEndpoint = SplunkEndpoint;
             }
             return options;
         }

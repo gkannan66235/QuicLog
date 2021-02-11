@@ -13,7 +13,7 @@ namespace QuicLog.Api
             QuicLogger.Configure();
             try
             {
-                QuicLogger.Info("Api Started");
+                QuicLogger.Info("Api Started successfully");
                 CreateHostBuilder(args).Build().Run();
             }
             catch (Exception e)
@@ -22,7 +22,7 @@ namespace QuicLog.Api
             }
             finally
             {
-                QuicLogger.Info("Api stopper and thank you giridhar");
+                QuicLogger.Info("Api stopper and thank you");
                 QuicLogger.LogAndFlush();
             }
         }
