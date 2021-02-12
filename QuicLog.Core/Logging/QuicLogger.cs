@@ -33,6 +33,16 @@ namespace QuicLog.Core.Logging
             Log.Logger.Information(message);
             LogAndFlush();
         }
+        public static void Warn(string message)
+        {
+            Log.Logger.Warning(message);
+            LogAndFlush();
+        }
+        public static void Err(string message)
+        {
+            Log.Logger.Error(message);
+            LogAndFlush();
+        }
         private static void CreateLogger()
         {
             Log.Logger = CreateLoggerFromConfiguration();
