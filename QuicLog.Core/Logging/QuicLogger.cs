@@ -5,7 +5,6 @@ using Serilog;
 using Serilog.Formatting.Json;
 
 
-
 namespace QuicLog.Core.Logging
 {
     public static class QuicLogger
@@ -52,13 +51,12 @@ namespace QuicLog.Core.Logging
 
         private static ILogger CreateConsoleLogger(LoggerConfiguration loggerConfig)
         {
-            return loggerConfig.WriteTo.Console(outputTemplate:
-                    "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}").CreateLogger();
+            return loggerConfig.WriteTo.Console().CreateLogger();
         }   
 
         private static ILogger CreateEventCollectorLogger(LoggerConfiguration loggerConfig)
         {
-            return loggerConfig.WriteTo.EventCollector("http://localhost:8088/services/collector", "e8f47278-7ff0-4a33-a370-672afa4879b8").CreateLogger();
+            return loggerConfig.WriteTo.EventCollector(_options.SplunkEndpoint, _options.SplunkToken).CreateLogger();
         }
     }
 }
